@@ -1,0 +1,68 @@
+The CFCore Project is a library of utility methods for simplifying RESTful
+ORM services. The default naming conventions that should be followed are:
+
+   table:   my_models (with field names 'my_field')
+   model:   MyModel.cfc (which must be unique, application wide)
+   service: MyModelsService.cfc
+   
+To use this library:
+
+1. Extend the Application.cfc from the AORMApplication component. Follow the 
+   notes in the Application.cfc example of this library to initialize both
+   services and models.
+   
+2. Any ORM components must:
+    a. Specify the persistent="true" tag.
+    b. Specify the table="my_models" tag.
+    c.  Specify their properties in standard fashion.
+    d. Add the tag searchable="true" to any fields that you wish to text
+       search on.
+    e. Compound primary keys are automatically captured based on your property
+       settings. See AORMComponent for more information.
+       
+3. Any RESTful service that extends AORMRESTfulService must:
+    a. Define its table name.
+    b. Implement the getModel function to return a string name of the
+       corresponding Model.
+
+Run index.cfm to test that everything is set up correctly and to reset the
+application if you change ORM properties as they always have to be re-mapped
+when changed.
+       
+Examples:
+
+MyModel.cfc
+component extends="CFCore.com.fosrias.cfcore.interfaces.AORMComponent" 
+          hint="The model for my_sites"
+          persistent="true"
+          table="sites"
+          alias="MyApp.com.url.project.components.physical.MyModel" 
+          style="rpc"
+{
+    property name="id" ormtype="integer" type="numeric" fieldtype="id" 
+             generator="native";
+    property name="name" type="string";
+    property name="description" type="string" searchable="true";
+    ...
+    
+    public MyModel init()
+    {
+        super.init();
+        return this;
+    }
+}
+
+MyModelsService.cfc
+component table="my_models"
+{
+    public MyModelsService function init()
+    {
+        super.init();
+        return this;
+    }
+    
+    public string function getModel()
+    {
+        return "MyModel";
+    }
+}
