@@ -64,7 +64,7 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
      */
     public string function getSortOrder()
     {
-       return "id ASC"; //APPLICATION.findSortOrder( this.getModel() );
+       return APPLICATION.findSortOrder( this.getModel() );
     }
 
     //--------------------------------------------------------------------------
@@ -79,7 +79,8 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
 	 */
     public string function getModel()
 	{
-       throw(type="Implementation Error" message="The method getModel is not implemented in #GetMetadata(this).name#.")
+       throw(type="Implementation Error" message="The method getModel is not 
+	       implemented in #GetMetadata(this).name#.")
 	}
 	
     //--------------------------------------------------------------------------
@@ -91,18 +92,21 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
     /**
      * @hint Returns the count of records in the underlying table.
      */
-    remote numeric function count() 
+    remote any function count() 
     {
-        return ormExecuteQuery("SELECT COUNT(*) FROM #this.getModel()#")[1];
+        return callResult( 
+		    ormExecuteQuery("SELECT COUNT(*) FROM #this.getModel()#")[1] );
     }
 
     /**
      * @hint Updates one record from the underlying table.
      */
-    remote void function create(required any value) 
+    remote any function create(required any value) 
     {
-        ARGUMENTS.value.nullifyZeroID();
-        EntitySave(ARGUMENTS.value);
+        //Force an insert. Causes preInsert callback to fire.
+		EntitySave(ARGUMENTS.value, true);
+		
+        return callResult(ARGUMENTS.value);
     }
     
     /**
@@ -125,41 +129,42 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
 	/**
      * @hint Returns all of the records in the underlying table, with paging.
      */
-    remote Array function indexPaged(numeric offset ="0",
-                                     numeric maxRresults ="0", 
-                                     string orderBy ="Null") 
+    remote any function indexPaged(numeric offset ="0",
+                                   numeric maxResults ="0", 
+                                   string orderBy ="Null") 
     {
-        var loadArgs = {};
+        var params = {};
 		var orderByClause = ARGUMENTS.orderBy;
 		
 		if (ARGUMENTS.offset neq 0)
         {
-            loadArgs.offset = ARGUMENTS.offset;
+            params.offset = ARGUMENTS.offset;
         }
-        if (ARGUMENTS.maxRresults neq 0)
+        if (ARGUMENTS.maxResults neq 0)
         {
-            loadArgs.maxRresults = ARGUMENTS.maxRresults;
+            params.maxResults = ARGUMENTS.maxResults;
         }
 		if (orderByClause eq "Null")
         {
             orderByClause = this.getSortOrder();
         }
         
-        return entityLoad(this.getModel(), {}, orderByClause, loadArgs);
+        return callResult( entityLoad(this.getModel(), {}, orderByClause, 
+		    params) );
     }
 
     /**
      * @hint Performs search against the underlying table.
      */
-    remote Array function search(string query) 
+    remote any function search(string query) 
     {
 		var hqlString = "FROM #this.getModel()#";
 		var whereClause = "";
 		var orderByClause = this.getSortOrder();
 		
-		if (Len(arguments.q) gt 0)
+		if (Len(ARGUMENTS.query) gt 0)
 		{
-		    whereClause = buildWhereClause(this.getModel(), query);
+		    whereClause = buildWhereClause(ARGUMENTS.query);
 		}
 		if (Len(whereClause) gt 0)
 		{
@@ -170,36 +175,35 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
 		    hqlString = hqlString & " ORDER BY #orderByClause#";	
 		}   
 			   
-        return ormExecuteQuery(hqlString, false, {});
+        return callResult( ormExecuteQuery(hqlString, false, {}) );
     }
 
     /**
      * @hint Determines total number of results of search for paging purposes.
      */
-    remote numeric function searchCount(string query) 
+    remote any  function searchCount(string query) 
     {
-	    var hqlString = "SELECT count(*) FROM #this.getModel()#";
+	    var hqlString = "SELECT COUNT(*) FROM #this.getModel()#";
         var whereClause = "";
         
         if (Len(ARGUMENTS.query) gt 0)
         {
-            whereClause = buildWhereClause( this.getModel(), 
-			    ARGUMENTS.query);
+            whereClause = buildWhereClause(ARGUMENTS.query);
         }
         if (Len(whereClause) gt 0)
         {
             hqlString = hqlString & " WHERE " & whereClause;
         }
-		return ormExecuteQuery(hqlString, false, {})[1];
+		return callResult(  ormExecuteQuery(hqlString, false, {})[1] );
     }
     
     /**
 	 *  @hint Performs search against the underlying table, with paging.
      */
-    remote Array function searchPaged(string query, 
-                                      numeric offset ="0", 
-                                      numeric maxresults ="0", 
-                                      string orderby ="Null")
+    remote any function searchPaged(string query, 
+                                    numeric offset ="0", 
+                                    numeric maxResults ="0", 
+                                    string orderBy ="Null")
     {	
 	    //Note: Query calls are against the model, not the table name
 		var hqlString = "FROM #this.getModel()#";
@@ -211,19 +215,19 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
 		{
             params.offset = arguments.offset;
         }
-        if (ARGUMENTS.maxresults neq 0)
+        if (ARGUMENTS.maxResults neq 0)
 		{
-            params.maxresults = arguments.maxresults;
+            params.maxResults = arguments.maxResults;
         }
         if (Len(ARGUMENTS.query) gt 0)
 		{
-            whereClause = buildWhereClause( this.getModel(), ARGUMENTS.query);
+            whereClause = buildWhereClause(ARGUMENTS.query);
         }
         if (Len(whereClause) gt 0)
 		{
             hqlString = hqlString & " WHERE " & whereClause;
         }
-	    if (ARGUMENTS.orderby eq "Null")
+	    if (ARGUMENTS.orderBy eq "Null")
         {
             orderByClause = this.getSortOrder();
         }	
@@ -232,37 +236,39 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
             hqlString = hqlString & " ORDER BY #orderByClause#";   
         }   
                   
-	    return ormExecuteQuery(hqlString, false, params);
+	    return callResult(  ormExecuteQuery(hqlString, false, params) );
     }
 
     /**
      * @hint Returns one record from the underlying table.
      */
-    remote any function show(required string id) 
+    remote any function show(required String id) 
     {
-        return EntityLoad(this.getModel(), ARGUMENTS.id, true);
+        //REFACTOR for composite primary keys
+		return callResult(  EntityLoad(this.getModel(), ARGUMENTS.id, true) );
     }
 
     /**
      * @hint Updates one record from the underlying table.
      */
-    remote void function update(required any value)
+    remote any function update(required any value)
     {
-	    //Check if new record. Only existing records should be updated.
-        if (ARGUMENTS.value.getId() eq 0 OR ARGUMENTS.value.getId() eq "")
-        {
-            throw (type="Update Method Error", 
-			       message="#GetMetadata(this).name# update method called on "
-				   + "new #GetMetadata(value).name#.");
-        }
-        EntitySave(ARGUMENTS.value);
+	    EntitySave(ARGUMENTS.value);
+		
+		return callResult(ARGUMENTS.value);
     }
 	
-	/**
+	//--------------------------------------------------------------------------
+    //
+    //  Private methods
+    //
+    //--------------------------------------------------------------------------
+    
+    /**
      * @hint Adds a where clause to a query.
      */
-    private string function buildWhereClause(String type, String query)
+    private string function buildWhereClause(String query)
 	{
-	    return APPLICATION.buildWhereClause(arguments.type, arguments.query);
+	    return APPLICATION.buildWhereClause(this.getModel(), arguments.query);
 	}
 }

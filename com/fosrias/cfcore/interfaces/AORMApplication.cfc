@@ -23,10 +23,8 @@ component
 	
     this.ormenabled = true;
 	this.ormsettings.logSQL = true;
+	this.ormsettings.eventHandler = "CFCore.com.fosrias.cfcore.components.eventHandler";
 	
-	//Define the application settings for tracking reset
-    this.applicationTimeout = createTimeSpan( 0, 0, 5, 0 );
-    
 	//--------------------------------------------------------------------------
     //
     //  Abstract Constructor
@@ -43,6 +41,9 @@ component
 		
 		//Define the application settings for tracking reset
         APPLICATION.dateInitialized = now();
+		
+		//Reset this value if application was reset by index.cfm
+		//this.applicationTimeout = createTimeSpan( 172700, 0, 0, 0 );
     }
 	
 	//--------------------------------------------------------------------------

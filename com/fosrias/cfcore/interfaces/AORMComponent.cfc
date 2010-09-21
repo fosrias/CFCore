@@ -12,36 +12,6 @@
  */
 component
 {
-    //--------------------------------------------------------------------------
-    //
-    //  Properties
-    //
-    //--------------------------------------------------------------------------
-    
-    //----------------------------------
-    //  createdAtField
-    //----------------------------------
-    
-    /**
-     * @hint The name of the createdAt timestamp of the component.
-     */
-    property String createdAtField;
-    
-    //----------------------------------
-    //  updatedAtField
-    //----------------------------------
-    
-    /**
-     * @hint The name of the updatedAt timestamp of the component.
-     */
-    property String updatedAtField;
-	
-	//--------------------------------------------------------------------------
-    //
-    //  Includes
-    //
-    //--------------------------------------------------------------------------
-    
     include "/CFCore/com/fosrias/cfcore/components/InflectionFunctions.cfc";
     
     //--------------------------------------------------------------------------
@@ -84,21 +54,17 @@ component
      */
 	private void function init(String model ="Null",
 	                           String sortOrder = "Null",
-                               String createdAtField = "createdAt",
-                               String updatedAtField = "updatedAt") 
+                               String createdAtField = "created_at",
+                               String updatedAtField = "updated_at") 
     {
 	    //Get the metadata
 	    var metadata = GetMetadata(this);
 		
-	    //Set timestamp fields
-        this.createdAtField = ARGUMENTS.createdAtField;
-        this.updatedAtField = ARGUMENTS.updatedAtField;
-    
-        //See AORMApplication for APPLICATION utility methods used here.
+	    //See AORMApplication for APPLICATION utility methods used here.
 		//The following effectively creates class variables for the 
 		//primary key and sort order so they are only calculated once for
 		//each component after the server is started.
-		if ( false )//NOT APPLICATION.hasORMStructures(metadata.name) )
+		if ( NOT APPLICATION.hasORMStructures(metadata.name) )
 		{   
 		    var modelName = ARGUMENTS.model;
 			
@@ -156,6 +122,10 @@ component
                 metadata.name);
 	        APPLICATION.setWhereClause(modelName, defineWhereClause(), 
                 metadata.name);
+		    APPLICATION.setCreatedAtField(modelName, ARGUMENTS.createdAtField, 
+			    metadata.name);
+			APPLICATION.setUpdatedAtField(modelName, ARGUMENTS.updatedAtField, 
+			    metadata.name);
 		}
     }
 	
@@ -171,9 +141,11 @@ component
      */
     public function setCreatedAt(Date value)
     {
-        if ( structKeyExists(VARIABLES, "#this.createdAtField#") )
+		var metaData = GetMetadata(this);
+		var createdAtField = APPLICATION.findCreatedAtField(metaData.name);
+		if ( structKeyExists(metaData.PROPERTYSTRUCT, createdAtField) )
         {
-             VARIABLES[this.createdAtField] = ARGUMENTS.value;
+             VARIABLES[createdAtField] = ARGUMENTS.value;
         }
     }
     
@@ -183,20 +155,21 @@ component
      */
     public function setUpdatedAt(Date value)
     {
-        if ( structKeyExists(VARIABLES, "#this.updatedAtField#") )
+		var metaData = GetMetadata(this);
+        var updatedAtField = APPLICATION.findUpdatedAtField(metaData.name);
+		if ( structKeyExists(metaData.PROPERTYSTRUCT, updatedAtField) )
         {
-            VARIABLES[this.updatedAtField] = ARGUMENTS.value;
+            VARIABLES[updatedAtField] = ARGUMENTS.value;
         }
     }
     
     /**
-     * @hint Returns the id of the record based on the primary key.
+     * @hint Returns the primary key of the record, which may be composite.
      */
-    public any function getId()
+    public any function getPrimaryKey()
     {
 	   var primaryKey = APPLICATION.findPrimaryKey(GetMetadata(this).name);
 	   var splitIds = primaryKey.split(",");
-	   
 	   try
 	   {
 	       //REFACTOR: Add composite primary key functionality.
@@ -209,16 +182,6 @@ component
 
 		   return 0;
 	   }
-       
-    }
-
-    /**
-     * @hint Sets the id of the record based on the primary key.
-     */
-    public any function setId(any value)
-    {
-       //REFACTOR: Add composite primary key functionality.
-       VARIABLES[this.primaryKey] = arguments.value;
     }
 
     /**
@@ -227,10 +190,14 @@ component
      */
     public void function nullifyZeroID() 
     {
-        if (getId() eq 0 OR getId() eq "")
+        if (getPrimaryKey() eq 0 OR getPrimaryKey() eq "")
         {
             //REFACTOR: Add composite primary key functionality.
-            this.setId( JavaCast("Null", "") );
+            var primaryKey = APPLICATION.findPrimaryKey(GetMetadata(this).name);
+	    	var splitIds = primaryKey.split(",");
+	   
+    		//REFACTOR: Add composite primary key functionality.
+        	VARIABLES[primaryKey] = JavaCast("Null", "");	
         }
     }
 	
@@ -286,15 +253,9 @@ component
     */
     remote void function preInsert(any entity) 
 	{
-        if (structKeyExists( entity, "setCreatedAt") )
-		{
-            entity.setCreatedAt( now() );
-        }
-
-        if (structKeyExists( entity, "setUpdatedAt") )
-		{
-            entity.setUpdatedAt( now() );
-        }
+		this.nullifyZeroID();
+        this.setCreatedAt( now() );
+		this.setUpdatedAt( now() );
     }
 
     /**
@@ -311,10 +272,14 @@ component
      */
     remote void function preUpdate(any entity , struct oldData ) 
 	{
-        if (structKeyExists( entity, "setUpdatedAt") )
-		{
-            entity.setUpdatedAt( now() );
+		//Check if new record. Only existing records should be updated.
+        if (this.getPrimaryKey() eq 0 OR this.getPrimaryKey() eq "")
+        {
+            throw (type="Update Method Error", 
+                   message="Update method called on "
+                   + "new #GetMetadata(this).name#.");
         }
+	   this.setUpdatedAt( now() );
     }
 	
 	//--------------------------------------------------------------------------
@@ -324,7 +289,7 @@ component
     //--------------------------------------------------------------------------
     
     /**
-     * Provides simple non-indexed search where clause for all properties 
+     * Provides simple non-indexed search where clause for all ORM properties 
 	 * defined as searchable.
 	 *
 	 * @hint Abstract function that builds a where clause from the models
@@ -361,5 +326,4 @@ component
         
 		return whereClause;
 	}
-    
 }
