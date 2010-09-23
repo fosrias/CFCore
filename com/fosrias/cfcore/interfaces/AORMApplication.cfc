@@ -23,7 +23,8 @@ component
 	
     this.ormenabled = true;
 	this.ormsettings.logSQL = true;
-	this.ormsettings.eventHandler = "CFCore.com.fosrias.cfcore.components.eventHandler";
+	this.ormsettings.eventhandling = true;
+	//this.ormsettings.eventHandler = "CFCore.com.fosrias.cfcore.components.eventHandler";
 	
 	//--------------------------------------------------------------------------
     //
