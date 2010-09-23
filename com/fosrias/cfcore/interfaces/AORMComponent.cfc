@@ -53,9 +53,7 @@ component
 	 * @hint A initialization routine, runs when object is created.
      */
 	private void function init(String model ="Null",
-	                           String sortOrder = "Null",
-                               String createdAtField = "created_at",
-                               String updatedAtField = "updated_at") 
+	                           String sortOrder = "Null") 
     {
 	    //Get the metadata
 	    var metadata = GetMetadata(this);
@@ -122,10 +120,6 @@ component
                 metadata.name);
 	        APPLICATION.setWhereClause(modelName, defineWhereClause(), 
                 metadata.name);
-		    APPLICATION.setCreatedAtField(modelName, ARGUMENTS.createdAtField, 
-			    metadata.name);
-			APPLICATION.setUpdatedAtField(modelName, ARGUMENTS.updatedAtField, 
-			    metadata.name);
 		}
     }
 	
@@ -134,35 +128,7 @@ component
     //  Methods
     //
     //--------------------------------------------------------------------------
-    
-	/**
-     * @hint Sets the createdAt value for the component if the createdAtField
-	 * exists.
-     */
-    public function setCreatedAt(Date value)
-    {
-		var metaData = GetMetadata(this);
-		var createdAtField = APPLICATION.findCreatedAtField(metaData.name);
-		if ( structKeyExists(metaData.PROPERTYSTRUCT, createdAtField) )
-        {
-             VARIABLES[createdAtField] = ARGUMENTS.value;
-        }
-    }
-    
-    /**
-     * @hint Sets the updatedAt value for the component if the updatedAtField
-     * exists.
-     */
-    public function setUpdatedAt(Date value)
-    {
-		var metaData = GetMetadata(this);
-        var updatedAtField = APPLICATION.findUpdatedAtField(metaData.name);
-		if ( structKeyExists(metaData.PROPERTYSTRUCT, updatedAtField) )
-        {
-            VARIABLES[updatedAtField] = ARGUMENTS.value;
-        }
-    }
-    
+        
     /**
      * @hint Returns the primary key of the record, which may be composite.
      */
@@ -197,7 +163,9 @@ component
 	    	var splitIds = primaryKey.split(",");
 	   
     		//REFACTOR: Add composite primary key functionality.
-        	VARIABLES[primaryKey] = JavaCast("Null", "");	
+			
+			//StructDelete(VARIABLES, primaryKey);
+        	VARIABLES[primaryKey] = JavaCast("Null", "");
         }
     }
 	
@@ -254,8 +222,16 @@ component
     remote void function preInsert(any entity) 
 	{
 		this.nullifyZeroID();
-        this.setCreatedAt( now() );
-		this.setUpdatedAt( now() );
+
+		if (structKeyExists(this, "setcreatedAt"))
+		{
+            this.setcreatedAt( now() );   
+        }
+
+        if ( structKeyExists(this, "setupdatedAt") )
+		{
+            this.setupdatedAt( now() );
+        }
     }
 
     /**
@@ -279,7 +255,11 @@ component
                    message="Update method called on "
                    + "new #GetMetadata(this).name#.");
         }
-	   this.setUpdatedAt( now() );
+	   
+	   if ( structKeyExists(this, "setupdatedAt") )
+	   {
+            this.setupdatedAt( now() );
+       }
     }
 	
 	//--------------------------------------------------------------------------

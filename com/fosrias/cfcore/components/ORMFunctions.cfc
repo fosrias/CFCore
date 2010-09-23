@@ -37,11 +37,8 @@ component
         StructDelete(APPLICATION, "setPrimaryKey");
 		StructDelete(APPLICATION, "setSortOrder");
         StructDelete(APPLICATION, "setWhereClause");
-		StructDelete(APPLICATION, "setCreatedAtField");
-		StructDelete(APPLICATION, "setUpdatedAtField");
     }
     
-
     /* 
 	 * Calling this function will force a rebuild of ORM functionality values 
 	 * if this component is modified, without restarting the server.
@@ -55,8 +52,6 @@ component
         APPLICATION.primaryKeys = {};
         APPLICATION.sortOrders = {};
 		APPLICATION.whereClauses = {};
-		APPLICATION.createdAtFields = {};
-		APPLICATION.updatedAtFields = {};
 
         APPLICATION.hasORMStructures = hasORMStructures;
         
@@ -64,14 +59,10 @@ component
         
 		APPLICATION.findPrimaryKey = findPrimaryKey;
         APPLICATION.findSortOrder = findSortOrder;
-		APPLICATION.findCreatedAtField = findCreatedAtField;
-		APPLICATION.findUpdatedAtField = findUpdatedAtField;
 		
 		APPLICATION.setPrimaryKey = setPrimaryKey;
         APPLICATION.setSortOrder = setSortOrder;
 		APPLICATION.setWhereClause = setWhereClause;
-		APPLICATION.setCreatedAtField = setCreatedAtField;
-		APPLICATION.setUpdatedAtField = setUpdatedAtField;
 		
 		//Build all ORM models once to initialize them vs. doing it when
 		//first called by crawling through the tree and initializing them
@@ -175,74 +166,6 @@ component
             
             throw(type="Sort Order Error", 
                 message="Sort Order for #key# is already set.");
-            return false;
-        }
-    }
-	
-	/*
-     * @hint Finds sort order for a ORM component type.
-     */
-    private String function findCreatedAtField(String type)
-    {
-        return APPLICATION.createdAtFields[type];
-    }
-
-	/*
-     * @hint Sets the sort order mapping for a ORM component type.
-     */
-    private boolean function setCreatedAtField(String key, 
-                                               String value,
-										       String packageKey = "Null")
-    {
-        //We only can set the sort order once
-        if ( NOT structKeyExists(APPLICATION.createdAtFields, key) )
-        {
-            APPLICATION.createdAtFields[key] = value;
-			
-            //Allows for mapping by ORM component name and package name.
-            if (NOT packageKey eq "Null")
-            {
-                APPLICATION.createdAtFields[packageKey] = value;
-            }
-            return true;
-        } else {
-            
-            throw(type="Created At Field Error", 
-                message="createdAtField for #key# is already set.");
-            return false;
-        }
-    }
-	
-	/*
-     * @hint Finds sort order for a ORM component type.
-     */
-    private String function findUpdatedAtField(String type)
-    {
-        return APPLICATION.updatedAtFields[type];
-    }
-
-	/*
-     * @hint Sets the sort order mapping for a ORM component type.
-     */
-    private boolean function setUpdatedAtField(String key, 
-                                               String value,
-										       String packageKey = "Null")
-    {
-        //We only can set the sort order once
-        if ( NOT structKeyExists(APPLICATION.updatedAtFields, key) )
-        {
-            APPLICATION.updatedAtFields[key] = value;
-			
-            //Allows for mapping by ORM component name and package name.
-            if (NOT packageKey eq "Null")
-            {
-                APPLICATION.updatedAtFields[packageKey] = value;
-            }
-            return true;
-        } else {
-            
-            throw(type="Updated At Field Error", 
-                message="updatedAtField for #key# is already set.");
             return false;
         }
     }
