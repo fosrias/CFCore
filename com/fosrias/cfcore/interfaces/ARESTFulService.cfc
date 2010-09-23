@@ -103,7 +103,8 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
      */
     remote any function create(required any value) 
     {
-        //Force an insert. Causes preInsert callback to fire.
+        
+		//Force an insert. Causes preInsert callback to fire.
 		EntitySave(ARGUMENTS.value, true);
 		
         return callResult(ARGUMENTS.value);
