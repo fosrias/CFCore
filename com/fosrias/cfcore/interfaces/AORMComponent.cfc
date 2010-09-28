@@ -13,7 +13,7 @@
 component
 {
     include "/CFCore/com/fosrias/cfcore/components/InflectionFunctions.cfc";
-    
+	
     //--------------------------------------------------------------------------
     //
     //  Abstract Constructor
@@ -125,10 +125,23 @@ component
 	
 	//--------------------------------------------------------------------------
     //
-    //  Methods
+    //  Properties
     //
     //--------------------------------------------------------------------------
         
+    /**
+     * @hint Whether the item is the site master or not.
+     */
+    public boolean function getisNew()
+    {
+       if ( structKeyExists(this, "getid") )
+       {
+           return this.getid() eq 0 OR this.getid() eq "";
+       } else {
+           return true;    
+       }
+    }
+    
     /**
      * @hint Returns the primary key of the record, which may be composite.
      */
@@ -149,26 +162,7 @@ component
 		   return 0;
 	   }
     }
-
-    /**
-     * @hint Nullifies blank or zero id's.  Useful for dealing with objects 
-     * coming back from remoting.
-     */
-    public void function nullifyZeroID() 
-    {
-        if (getPrimaryKey() eq 0 OR getPrimaryKey() eq "")
-        {
-            //REFACTOR: Add composite primary key functionality.
-            var primaryKey = APPLICATION.findPrimaryKey(GetMetadata(this).name);
-	    	var splitIds = primaryKey.split(",");
-	   
-    		//REFACTOR: Add composite primary key functionality.
-			
-			//StructDelete(VARIABLES, primaryKey);
-        	VARIABLES[primaryKey] = JavaCast("Null", "");
-        }
-    }
-	
+    
 	//--------------------------------------------------------------------------
     //
     //  Callback Methods
@@ -221,8 +215,6 @@ component
     */
     remote void function preInsert(any entity) 
 	{
-		this.nullifyZeroID();
-
 		if (structKeyExists(this, "setcreatedAt"))
 		{
             this.setcreatedAt( now() );   
@@ -248,18 +240,18 @@ component
      */
     remote void function preUpdate(any entity , struct oldData ) 
 	{
-		//Check if new record. Only existing records should be updated.
-        if (this.getPrimaryKey() eq 0 OR this.getPrimaryKey() eq "")
-        {
-            throw (type="Update Method Error", 
-                   message="Update method called on "
-                   + "new #GetMetadata(this).name#.");
-        }
+       
+	   //Only set for new records
+       if (structKeyExists(this, "setcreatedAt") AND this.getcreatedAt() eq "")
+       {
+           this.setcreatedAt( now() );
+       } 
 	   
+	   //Always set this
 	   if ( structKeyExists(this, "setupdatedAt") )
 	   {
             this.setupdatedAt( now() );
-       }
+       } 
     }
 	
 	//--------------------------------------------------------------------------
