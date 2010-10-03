@@ -13,7 +13,9 @@ component hint="Base class for services."
 {
     import CFCore.com.fosrias.cfcore.components.CallResult;
     
-	//--------------------------------------------------------------------------
+	include "/CFCore/com/fosrias/cfcore/components/InflectionFunctions.cfc";
+    
+    //--------------------------------------------------------------------------
     //
     //  Abstract constructor
     //
@@ -22,9 +24,19 @@ component hint="Base class for services."
     /**
      * Constructor
      */
-    private void function init()
+    private void function init(string model = "Null")
 	{
-	   //Does nothing currently
+	   var serviceName = GetMetadata(this).name;
+	   
+	   if (ARGUMENTS.model eq "Null")
+	   {
+	       var modelName = REReplaceNoCase(serviceName, "service", "", "all");
+		   
+		   modelName = singularize( demodulize(modelName) );
+           ARGUMENTS.model = modelName;
+	   }
+	   
+	   APPLICATION.setServiceModelName(serviceName, ARGUMENTS.model);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -41,4 +53,22 @@ component hint="Base class for services."
     {
        return new CallResult(data, message);
     }
+	
+	/*
+     * @hint Abstract method for retrieving the model name associated with
+     * the service.
+     */
+    public string function getsortOrder()
+    {
+       return APPLICATION.findSortOrder( this.getmodel() );
+    }
+
+    /*
+     * @hint Abstract method for retrieving the model name associated with
+     * the service.
+     */
+    public string function getmodel()
+    {
+       return APPLICATION.findServiceModelName( GetMetadata(this).name );
+    } 
 }

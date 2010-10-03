@@ -24,18 +24,24 @@ component
      */
     public void function clearORMStructures()
     {
-        StructDelete(APPLICATION, "primaryKeys");
+        StructDelete(APPLICATION, "modelNames");
+		StructDelete(APPLICATION, "primaryKeys");
+        StructDelete(APPLICATION, "serviceModelNames");
         StructDelete(APPLICATION, "sortOrders");
         StructDelete(APPLICATION, "whereClauses");
         
         StructDelete(APPLICATION, "hasORMStructures");
 		
+        StructDelete(APPLICATION, "findModelName");
         StructDelete(APPLICATION, "findPrimaryKey");
+        StructDelete(APPLICATION, "findServiceModelName");
         StructDelete(APPLICATION, "findSortOrder");
 		StructDelete(APPLICATION, "findWhereClause");
 		
+        StructDelete(APPLICATION, "setModelName");
         StructDelete(APPLICATION, "setPrimaryKey");
-		StructDelete(APPLICATION, "setSortOrder");
+        StructDelete(APPLICATION, "setServiceModelName");
+        StructDelete(APPLICATION, "setSortOrder");
         StructDelete(APPLICATION, "setWhereClause");
     }
     
@@ -49,6 +55,8 @@ component
 	{
 	    clearORMStructures();
 		
+        APPLICATION.modelNames = {};
+        APPLICATION.serviceModelNames = {};
         APPLICATION.primaryKeys = {};
         APPLICATION.sortOrders = {};
 		APPLICATION.whereClauses = {};
@@ -57,10 +65,14 @@ component
         
 		APPLICATION.buildWhereClause = buildWhereClause;
         
-		APPLICATION.findPrimaryKey = findPrimaryKey;
+		APPLICATION.findModelName = findModelName;
+        APPLICATION.findPrimaryKey = findPrimaryKey;
+        APPLICATION.findServiceModelName = findServiceModelName;
         APPLICATION.findSortOrder = findSortOrder;
 		
-		APPLICATION.setPrimaryKey = setPrimaryKey;
+		APPLICATION.setModelName = setModelName;
+        APPLICATION.setPrimaryKey = setPrimaryKey;
+        APPLICATION.setServiceModelName = setServiceModelName;
         APPLICATION.setSortOrder = setSortOrder;
 		APPLICATION.setWhereClause = setWhereClause;
 		
@@ -102,7 +114,34 @@ component
         return structKeyExists(APPLICATION.primaryKeys, type);
     }
     
-     /*
+    /*
+     * @hint Finds model name for a ORM component type.
+     */
+    private String function findModelName(String type)
+    {
+        return APPLICATION.modelNames[type];
+    }
+    
+    /*
+     * @hint Sets the model name mapping for a ORM component type.
+     */
+    private boolean function setModelName(String key, 
+                                          String value)
+    {
+        //We only can set the primary key once
+        if ( NOT APPLICATION.hasORMStructures(key) )
+        {
+            APPLICATION.modelNames[key] = value;
+            return true;
+        } else {
+            
+            throw(type="Model name Error", 
+                message="Model name for #key# is already set.");
+            return false;
+        }
+    }
+    
+    /*
      * @hint Finds primary key for a ORM component type.
      */
     private String function findPrimaryKey(String type)
@@ -114,24 +153,51 @@ component
      * @hint Sets the primary key mapping for a ORM component type.
      */
     private boolean function setPrimaryKey(String key, 
-	                                       String value, 
-										   String packageKey = "Null")
+                                           String value, 
+                                           String packageKey = "Null")
     {
         //We only can set the primary key once
         if ( NOT APPLICATION.hasORMStructures(key) )
         {
             APPLICATION.primaryKeys[key] = value;
-			
-			//Allows for mapping by ORM component name and package name.
-			if (NOT packageKey eq "Null")
-			{
+            
+            //Allows for mapping by ORM component name and package name.
+            if (NOT packageKey eq "Null")
+            {
                 APPLICATION.primaryKeys[packageKey] = value;
-			}
+            }
             return true;
         } else {
             
             throw(type="Primary Key Error", 
                 message="Primary key for #key# is already set.");
+            return false;
+        }
+    }
+    
+    /*
+     * @hint Finds model name for a ORM component type.
+     */
+    private String function findServiceModelName(String type)
+    {
+        return APPLICATION.serviceModelNames[type];
+    }
+    
+    /*
+     * @hint Sets the model name mapping for a ORM component type.
+     */
+    private boolean function setServiceModelName(String key, 
+                                                 String value)
+    {
+        //We only can set the service model name
+        if ( NOT structKeyExists(APPLICATION.serviceModelNames, key) )
+        {
+            APPLICATION.serviceModelNames[key] = value;
+            return true;
+        } else {
+            
+            throw(type="Model name Error", 
+                message="Service model name for #key# is already set.");
             return false;
         }
     }

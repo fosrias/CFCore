@@ -7,11 +7,15 @@ ORM services. The default naming conventions that should be followed are:
    
 To use this library:
 
-1. Extend the Application.cfc from the AORMApplication component. Follow the 
-   notes in the Application.cfc example of this library to initialize both
-   services and models.
+1. Name the folder that this stored in as CFCore and map a path to the folder 
+   in the ColdFusion administrator. This makes sure the various includes 
+   work correctly since using relative paths breaks down in the context of 
+   using this library in a different ColdFusion application.
+  
+2. Copy the files Application.cfc, index.cfm and reset.cfm into the root of the 
+   new application. Update the Application.cfc file accordingly.
    
-2. Any ORM components must:
+3. Any ORM components must:
     a. Specify the persistent="true" tag.
     b. Specify the table="my_models" tag.
     c.  Specify their properties in standard fashion.
@@ -20,18 +24,20 @@ To use this library:
     e. Compound primary keys are automatically captured based on your property
        settings. See AORMComponent for more information.
        
-3. Any RESTful service that extends AORMRESTfulService must:
+4. Any RESTful service that extends AORMRESTfulService must:
     a. Define its table name.
     b. Implement the getModel function to return a string name of the
        corresponding Model.
 
 Run index.cfm to test that everything is set up correctly and to reset the
 application if you change ORM properties as they always have to be re-mapped
-when changed.
+when changed, so you can use this page to reset the application after editing
+ORM components.
        
 Examples:
 
-MyModel.cfc
+MyModel.cfc:
+
 component extends="CFCore.com.fosrias.cfcore.interfaces.AORMComponent" 
           hint="The model for my_sites"
           persistent="true"
@@ -43,6 +49,7 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AORMComponent"
              generator="native";
     property name="name" type="string";
     property name="description" type="string" searchable="true";
+    property name="myProperty" column="my_property";
     ...
     
     public MyModel init()
@@ -52,17 +59,14 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AORMComponent"
     }
 }
 
-MyModelsService.cfc
-component table="my_models"
+MyModelsService.cfc:
+
+component extends="CFCore.com.fosrias.cfcore.interfaces.AORMRESTfulService" 
+          table="my_models"
 {
     public MyModelsService function init()
     {
         super.init();
         return this;
-    }
-    
-    public string function getModel()
-    {
-        return "MyModel";
     }
 }

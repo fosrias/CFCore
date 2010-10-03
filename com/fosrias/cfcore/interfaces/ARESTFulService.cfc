@@ -28,8 +28,6 @@
  */
 component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
 {
-    include "/CFCore/com/fosrias/cfcore/components/InflectionFunctions.cfc";
-    
     //--------------------------------------------------------------------------
     //
     //  Abstract Constructor
@@ -47,43 +45,12 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
 	 *
 	 * @hint A initialization routine, runs when object is created.
 	 */
-	private void function init()
+	private void function init(string model = "Null")
 	{
-	    super.init();
+	    super.init(model);
 	}
 	
 	//--------------------------------------------------------------------------
-    //
-    //  Methods
-    //
-    //--------------------------------------------------------------------------
-    
-	/*
-     * @hint Abstract method for retrieving the model name associated with
-     * the service.
-     */
-    public string function getSortOrder()
-    {
-       return APPLICATION.findSortOrder( this.getModel() );
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    //  Abstract methods
-    //
-    //--------------------------------------------------------------------------
-    
-	/*
-	 * @hint Abstract method for retrieving the model name associated with
-	 * the service.
-	 */
-    public string function getModel()
-	{
-       throw(type="Implementation Error" message="The method getModel is not 
-	       implemented in #GetMetadata(this).name#.")
-	}
-	
-    //--------------------------------------------------------------------------
     //
     //  Remote methods
     //
@@ -95,7 +62,7 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
     remote any function count() 
     {
         return callResult( 
-		    ormExecuteQuery("SELECT COUNT(*) FROM #this.getModel()#")[1] );
+		    ormExecuteQuery("SELECT COUNT(*) FROM #this.getmodel()#")[1] );
     }
 
     /**
@@ -103,7 +70,6 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
      */
     remote any function create(required any value) 
     {
-        
 		//Force an insert. Causes preInsert callback to fire.
 		EntitySave(ARGUMENTS.value, true);
 		
@@ -123,8 +89,8 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
 	 */
 	remote any function index()
 	{
-		return callResult( entityLoad( this.getModel(), {}, 
-		    this.getSortOrder() ) );
+		return callResult( entityLoad( this.getmodel(), {}, 
+		    this.getsortOrder() ) );
 	}
 
 	/**
@@ -147,10 +113,10 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
         }
 		if (orderByClause eq "Null")
         {
-            orderByClause = this.getSortOrder();
+            orderByClause = this.getsortOrder();
         }
         
-        return callResult( entityLoad(this.getModel(), {}, orderByClause, 
+        return callResult( entityLoad(this.getmodel(), {}, orderByClause, 
 		    params) );
     }
 
@@ -159,9 +125,9 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
      */
     remote any function search(string query) 
     {
-		var hqlString = "FROM #this.getModel()#";
+		var hqlString = "FROM #this.getmodel()#";
 		var whereClause = "";
-		var orderByClause = this.getSortOrder();
+		var orderByClause = this.getsortOrder();
 		
 		if (Len(ARGUMENTS.query) gt 0)
 		{
@@ -184,7 +150,7 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
      */
     remote any  function searchCount(string query) 
     {
-	    var hqlString = "SELECT COUNT(*) FROM #this.getModel()#";
+	    var hqlString = "SELECT COUNT(*) FROM #this.getmodel()#";
         var whereClause = "";
         
         if (Len(ARGUMENTS.query) gt 0)
@@ -207,7 +173,7 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
                                     string orderBy ="Null")
     {	
 	    //Note: Query calls are against the model, not the table name
-		var hqlString = "FROM #this.getModel()#";
+		var hqlString = "FROM #this.getmodel()#";
         var whereClause = "";
 		var orderByClause = "";
         var params = {};
@@ -230,7 +196,7 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
         }
 	    if (ARGUMENTS.orderBy eq "Null")
         {
-            orderByClause = this.getSortOrder();
+            orderByClause = this.getsortOrder();
         }	
         if (Len(orderByClause) gt 0)
         {
@@ -246,7 +212,7 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
     remote any function show(required String id) 
     {
         //REFACTOR for composite primary keys
-		return callResult(  EntityLoad(this.getModel(), ARGUMENTS.id, true) );
+		return callResult(  EntityLoad(this.getmodel(), ARGUMENTS.id, true) );
     }
 
     /**
@@ -270,6 +236,6 @@ component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
      */
     private string function buildWhereClause(String query)
 	{
-	    return APPLICATION.buildWhereClause(this.getModel(), arguments.query);
+	    return APPLICATION.buildWhereClause(this.getmodel(), arguments.query);
 	}
 }

@@ -24,7 +24,6 @@ component
     this.ormenabled = true;
 	this.ormsettings.logSQL = true;
 	this.ormsettings.eventhandling = true;
-	//this.ormsettings.eventHandler = "CFCore.com.fosrias.cfcore.components.eventHandler";
 	
 	//--------------------------------------------------------------------------
     //
@@ -44,7 +43,7 @@ component
         APPLICATION.dateInitialized = now();
 		
 		//Reset this value if application was reset by index.cfm
-		//this.applicationTimeout = createTimeSpan( 172700, 0, 0, 0 );
+		this.applicationTimeout = createTimeSpan( 172700, 0, 0, 0 );
     }
 	
 	//--------------------------------------------------------------------------

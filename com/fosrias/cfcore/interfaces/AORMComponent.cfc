@@ -115,6 +115,7 @@ component
 					}
 				}
 			}
+			APPLICATION.setModelName(modelName, metadata.name);
 			APPLICATION.setPrimaryKey(modelName, primaryKey, metadata.name);
             APPLICATION.setSortOrder(modelName, defaultSortOrder, 
                 metadata.name);
@@ -134,6 +135,8 @@ component
      */
     public boolean function getisNew()
     {
+	
+	   //REFACTOR: Use primary key
        if ( structKeyExists(this, "getid") )
        {
            return this.getid() eq 0 OR this.getid() eq "";
@@ -141,11 +144,19 @@ component
            return true;    
        }
     }
+	
+	/**
+     * @hint The model of the component, used for ORM calls.
+     */
+    public string function findModel()
+    {
+       return APPLICATION.findModelName( GetMetadata(this).name );
+    }
     
     /**
      * @hint Returns the primary key of the record, which may be composite.
      */
-    public any function getPrimaryKey()
+    public any function getprimaryKey()
     {
 	   var primaryKey = APPLICATION.findPrimaryKey(GetMetadata(this).name);
 	   var splitIds = primaryKey.split(",");
@@ -266,7 +277,7 @@ component
 	 *
 	 * @hint Abstract function that builds a where clause from the models
      */
-    private String function defineWhereClause()
+    public String function defineWhereClause()
 	{
 	    var properties = GetMetadata(this).PROPERTIES;
 	    var whereClause = "";
