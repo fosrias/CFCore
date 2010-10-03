@@ -18,32 +18,50 @@ component hint="Functions for managing nested lists."
 
 	    var hqlString = "";
 		
-        if (range eq 1)
-	    {
-			//Adding the first child
-			hqlString = "UPDATE #this.getmodel()# SET rgt = rgt + 2 WHERE " &
-			    " rgt >  #parentLft#";
-			ORMExecuteQuery(hqlString);
-			
-			hqlString = "UPDATE #this.getmodel()# SET lft = lft + 2 WHERE lft > " & 
-			     "#parentLft#";
-			ORMExecuteQuery(hqlString);
-			
-        } else {
-	        //Adding another child
-			//Shift everything right by 2
-			hqlString = "UPDATE #this.getmodel()# SET rgt = rgt + 2 WHERE " &
-			    " rgt >=  #ARGUMENTS.value.getlft()#";
-			ORMExecuteQuery(hqlString);
-			
-			hqlString = "UPDATE #this.getmodel()# SET lft = lft + 2 WHERE " &
-			     "lft >= #ARGUMENTS.value.getlft()#";
-			ORMExecuteQuery(hqlString);
-        } 
-	    
-		//Save in new location. Assumes lft and rgt correctly set in the client
-        //Force an insert using true. Causes preInsert callback to fire.
-        EntitySave(ARGUMENTS.value, true);
+		var query = new Query();
+        query.setdataSource("ContentManager"); 
+        query.setsql("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"); 
+        query.execute();
+        query.setsql("BEGIN TRANSACTION"); 
+        query.execute();
+        
+        try
+        {
+		
+	        if (range eq 1)
+		    {
+				//Adding the first child
+				hqlString = "UPDATE #this.getmodel()# SET rgt = rgt + 2 WHERE " &
+				    " rgt >  #parentLft#";
+				ORMExecuteQuery(hqlString);
+				
+				hqlString = "UPDATE #this.getmodel()# SET lft = lft + 2 WHERE lft > " & 
+				     "#parentLft#";
+				ORMExecuteQuery(hqlString);
+				
+	        } else {
+		        //Adding another child
+				//Shift everything right by 2
+				hqlString = "UPDATE #this.getmodel()# SET rgt = rgt + 2 WHERE " &
+				    " rgt >=  #ARGUMENTS.value.getlft()#";
+				ORMExecuteQuery(hqlString);
+				
+				hqlString = "UPDATE #this.getmodel()# SET lft = lft + 2 WHERE " &
+				     "lft >= #ARGUMENTS.value.getlft()#";
+				ORMExecuteQuery(hqlString);
+	        } 
+		    
+			//Save in new location. Assumes lft and rgt correctly set in the client
+	        //Force an insert using true. Causes preInsert callback to fire.
+	        EntitySave(ARGUMENTS.value, true);
+			query.setsql("COMMIT TRANSACTION");
+	        query.execute();
+        
+        } catch (any error) {
+            query.setsql("ROLLBACK TRANSACTION");
+            query.execute();
+            rethrow;
+        }
 	}
 	
 	public any function nestedRemove(any value, boolean delete = true)
@@ -55,26 +73,46 @@ component hint="Functions for managing nested lists."
 	   
 	    var hqlString = "DELETE FROM #this.getmodel()# WHERE lft BETWEEN " & 
 	        "#lft# AND #rgt#";
-	    if (delete)
-	    {
-	        ORMExecuteQuery(hqlString);
-	    } else {
+			
+        //Lock the tables
+		var query = new Query();
+		query.setdataSource("ContentManager"); 
+		query.setsql("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"); 
+		query.execute();
+		query.setsql("BEGIN TRANSACTION"); 
+		query.execute();
 		
-		     //Clear the nesting. We save the record, but remove it from 
-			//the tree.
-	        hqlString = "UPDATE #this.getmodel()# SET lft = -1, rgt = -1 " &
-			     "WHERE lft BETWEEN  #lft# AND #rgt#";
-	        ORMExecuteQuery(hqlString);
-	    }
-	   
-	   //Shift all remaining records left
-	   hqlString = "UPDATE #this.getmodel()# SET rgt = rgt - #range# " & 
-	       "WHERE rgt > #rgt#";
-       ORMExecuteQuery(hqlString);
-	   
-	   hqlString = "UPDATE #this.getmodel()# SET lft = lft - #range# " & 
-	       "WHERE lft > #rgt#";
-       ORMExecuteQuery(hqlString);
+		try
+		{	
+		    if (delete)
+		    {
+		        ORMExecuteQuery(hqlString);
+		    } else {
+			
+			     //Clear the nesting. We save the record, but remove it from 
+				//the tree.
+		        hqlString = "UPDATE #this.getmodel()# SET lft = -1, rgt = -1 " &
+				     "WHERE lft BETWEEN  #lft# AND #rgt#";
+		        ORMExecuteQuery(hqlString);
+		    }
+		   
+		   //Shift all remaining records left
+		   hqlString = "UPDATE #this.getmodel()# SET rgt = rgt - #range + 1# " & 
+		       "WHERE rgt > #rgt#";
+	       ORMExecuteQuery(hqlString);
+		   
+		   hqlString = "UPDATE #this.getmodel()# SET lft = lft - #range + 1# " & 
+		       "WHERE lft > #rgt#";
+	       ORMExecuteQuery(hqlString);
+		   
+		   query.setsql("COMMIT TRANSACTION");
+           query.execute();
+        
+        } catch (any error) {
+            query.setsql("ROLLBACK TRANSACTION");
+            query.execute();
+            rethrow;
+        }
 	}
 	
 	public any function nestedMove(any value)
@@ -86,97 +124,109 @@ component hint="Functions for managing nested lists."
 		var lft = result[1];
 		var rgt = result[2];
 		var range = rgt - lft;
-		var isUpMove = ARGUMENTS.value.getlft() < lft;
 		
         if (NOT ARGUMENTS.value.getlft() eq lft) 
         {
-		    //Get new parent information
-            hqlString = "SELECT lft, rgt FROM #this.getModel()# " &
-               "WHERE id=#ARGUMENTS.value.getparentId()#";
-            var result = ORMExecuteQuery(hqlString)[1];
-            var newParentLft = result[1];
-            var newParentRgt = result[2];
-            var newParentRange = newParentLft - newParentRgt;
+		    //Lock the tables
+			var query = new Query();
+			query.setdataSource("ContentManager"); 
+            query.setsql("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"); 
+            query.execute();
+			query.setsql("BEGIN TRANSACTION"); 
+            query.execute();
             
-		    //Make a gap where moving to
-			//First check if we are moving to parent with no children.
-            if (newParentRange eq 1)
-            {
-                //Moving to be the first child, create the gap
-                hqlString = "UPDATE #this.getmodel()# SET rgt = rgt + #range + 1# WHERE " &
-                    " rgt > #newParentLft#";
-                ORMExecuteQuery(hqlString);
-                
-                hqlString = "UPDATE #this.getmodel()# SET lft = lft + #range + 1# WHERE lft > " & 
-                     "#newParentLft#";
-                ORMExecuteQuery(hqlString);
-
-            } else {
-            
-                //Moving as another child, create the gap
-                hqlString = "UPDATE #this.getmodel()# SET rgt = rgt + #range + 1# WHERE " &
-                    " rgt >=  #ARGUMENTS.value.getlft()#";
-                ORMExecuteQuery(hqlString);
-                
-                hqlString = "UPDATE #this.getmodel()# SET lft = lft + #range + 1# WHERE " &
-                     "lft >= #ARGUMENTS.value.getlft()#";
-                ORMExecuteQuery(hqlString);
-            } 
-			
-			//Find my current location
-			hqlString = "SELECT lft, rgt FROM #this.getModel()# " &
-                "WHERE id=#ARGUMENTS.value.getid()#";
-	        result = ORMExecuteQuery(hqlString)[1];
-	        var currentLft = result[1];
-	        var currentRgt = result[2];
-            var offset = currentLft - ARGUMENTS.value.getlft();
-			
-			//Move into the gap. Update location and the location of any 
-			//children.
-            hqlString = "UPDATE #this.getmodel()# SET lft = lft - #offset#, rgt = rgt - #offset# " &
-             "WHERE lft BETWEEN  #currentLft# AND #currentRgt#";
-            ORMExecuteQuery(hqlString);
-			
-			
-			//Update to the new parent id so everything is current
-		    hqlString = "UPDATE #this.getmodel()# SET parentId = #ARGUMENTS.value.getparentId()#  WHERE " &
-                        " id =  #ARGUMENTS.value.getid()#";
-            ORMExecuteQuery(hqlString);
-			
-			//Find the reference to compact the tree. If it is a down move,
-			//Use the right value of the previous record.
-			var reference = lft - 1;
-			
-			if (isUpMove)
+		    try
 			{
-                //Find my new parents right location
-	            hqlString = "SELECT rgt FROM #this.getModel()# " &
-	                "WHERE id=#ARGUMENTS.value.getparentId()#";
-	            reference = ORMExecuteQuery(hqlString)[1];
-			}
-			
-			//Compact the gap
-			hqlString = "UPDATE #this.getmodel()# SET rgt = rgt - #range + 1# WHERE " &
-                " rgt >  #reference#";
-            ORMExecuteQuery(hqlString);
+			    //Copy the entire tree into the move buffer
+				hqlString = "DELETE FROM SiteItemBuffer";
+				ORMExecuteQuery(hqlString);
+	            
+				hqlString = "INSERT INTO SiteItemBuffer (id, lft , rgt) SELECT " &
+	                "id, lft, rgt FROM #this.getmodel()# WHERE lft > 0 " & 
+					"ORDER BY lft";
+				ORMExecuteQuery(hqlString);
+				
+	            //Delete item and its children from buffer at its current location
+		        hqlString = "DELETE FROM SiteItemBuffer WHERE lft BETWEEN " & 
+		            "#lft# AND #rgt#";
+	            ORMExecuteQuery(hqlString);
+	       
+				hqlString = "UPDATE SiteItemBuffer SET rgt = rgt - #range + 1# " & 
+				   "WHERE rgt > #rgt#";
+				ORMExecuteQuery(hqlString);
+				
+				hqlString = "UPDATE SiteItemBuffer SET lft = lft - #range + 1# " & 
+				   "WHERE lft > #rgt#";
+				ORMExecuteQuery(hqlString);
+				
+				//Make a gap to move into
+	            var reference = "";
+	            hqlString = "SELECT (lft - rgt) FROM #this.getModel()# " &
+	               "WHERE id=#ARGUMENTS.value.getparentId()#";
+	            
+				//Check if the new parent has children
+				if (ORMExecuteQuery(hqlString)[1] eq 1)
+	            {
+	                //Moving to be the first child
+					reference = newParentLft + 1;
+	
+	            } else {
+				
+	                //Moving as another child
+					reference = ARGUMENTS.value.getlft();
+	            } 
+				
+			    //Create the gap
+	            hqlString = "UPDATE SiteItemBuffer SET rgt = rgt + " & 
+	                "#range + 1# WHERE rgt >= #reference#";
+	            ORMExecuteQuery(hqlString);
+	            
+	            hqlString = "UPDATE SiteItemBuffer SET lft = lft + " & 
+	                "#range + 1# WHERE lft >= #reference#";
+	            ORMExecuteQuery(hqlString);
+				
+				var offset = lft - reference;
+				
+				//Insert into the gap location
+				hqlString = "INSERT INTO SiteItemBuffer (id, lft, rgt) SELECT " &
+	                "id, lft  - #offset# , rgt - #offset# FROM #this.getmodel()# " & 
+					"WHERE lft BETWEEN #lft# and #rgt# ORDER BY lft";
+	            ORMExecuteQuery(hqlString);
+				
+				ORMFlush();
+				
+				//Update the whole tree with the new left and right values
+				var table = GetMetadata(this).table;
+	            sqlString = "UPDATE #table# SET #table#.lft = " & 
+				    "site_items_buffer.lft, #table#.rgt = site_items_buffer.rgt " & 
+					"FROM site_items_buffer WHERE #table#.id = " & 
+					"site_items_buffer.id";
+	            
+				query.setsql(sqlString); 
+				query.execute();
+				
             
-            hqlString = "UPDATE #this.getmodel()# SET lft = lft - #range + 1# WHERE " &
-                 "lft > #reference#";
-            ORMExecuteQuery(hqlString);
-			
-			//Update the values so that discrepancies from the client are
-			//not saved since the move is accurate here.
-			hqlString = "SELECT lft, rgt FROM #this.getModel()# " &
-                "WHERE id=#ARGUMENTS.value.getid()#";
-            result = ORMExecuteQuery(hqlString)[1];
-            ARGUMENTS.value.setlft( result[1] );
-            ARGUMENTS.value.setrgt( result[2] );
-			
-			//So that any other changes to me are updated at the same time.
-			//Don't force an insert. Causes preUpdate callback to fire.
-			//We can only move existing items.
-			EntitySave(ARGUMENTS.value);
-			
+	            //Update the values so that discrepancies from the client are
+				//not saved since the move is accurate here.
+				hqlString = "SELECT lft, rgt FROM #this.getModel()# " &
+	                "WHERE id=#ARGUMENTS.value.getid()#";
+	            result = ORMExecuteQuery(hqlString)[1];
+	            ARGUMENTS.value.setlft( result[1] );
+	            ARGUMENTS.value.setrgt( result[2] );
+				
+				//So that any other changes to me are updated at the same time.
+				//Don't force an insert. Causes preUpdate callback to fire.
+				//We can only move existing items.
+				EntitySave(ARGUMENTS.value);
+				
+			    query.setsql("COMMIT TRANSACTION");
+                query.execute();
+            
+            } catch (any error) {
+                query.setsql("ROLLBACK TRANSACTION");
+                query.execute();
+                rethrow;
+            }
 			return true;	
         }
         return false;
