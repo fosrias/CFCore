@@ -95,10 +95,21 @@ component
      */
     public String function underscore(String value)
     {
-	     var underscored = REReplace(value, '([A-Z]+)([A-Z][a-z])', '$1_$2', 'all');
-		 underscored = REReplace(underscored, '([a-z\d])([A-Z])', '$1_$2', 'all');
+	     var underscored = REReplace(value, '([A-Z]+)([A-Z][a-z])', '\1_\2', 
+		     'all');
+		 underscored = REReplace(underscored, '([a-z\d])([A-Z])', '\1_\2', 
+		     'all');
 		 return LCase(underscored.replace('-', '_') );
     }   
+	
+	/*public String function camelize(String value)
+	{
+	   //REFACTOR:Doesn't work
+	   var camelized = LCase(underscore(value) );
+	   camelized = REReplace( camelized, '\/(.?)', UCase('\1') );
+	   
+	   return REReplace( camelized, '(?:^|_)(.)', UCase('\1') );
+	}*/
 	
 	//--------------------------------------------------------------------------
     //
@@ -127,22 +138,22 @@ component
     private Array function getPluralInflections()
     {
 	   var result =  [ ['$', 's'], 
-		             ['s$', 's'],
-	                 ['(ax|test)is$', '$1es'],
-	                 ['(octop|vir)us$', '$1i'],
-	                 ['(alias|status)$', '$1es'],
-	                 ['(bu)s$', '$1ses'],
-	                 ['(buffal|tomat)o$', '$1oes'],
-	                 ['([ti])um$', '$1a'],
-	                 ['sis$', 'ses'],
-	                 ['(?:([^f])fe|([lr])f)$', '$1$2ves'],
-	                 ['(hive)$', '$1s'],
-	                 ['([^aeiouy]|qu)y$', '$1ies'],
-	                 ['(x|ch|ss|sh)$', '$1es'],
-	                 ['(matr|vert|ind)(?:ix|ex)$', '$1ices'],
-	                 ['([m|l])ouse$', '$1ice'],
-	                 ['^(ox)$', '$1en'],
-	                 ['(quiz)$', '$1zes'] ];
+		               ['s$', 's'],
+	                   ['(ax|test)is$', '\1es'],
+	                   ['(octop|vir)us$', '\1i'],
+	                   ['(alias|status)$', '\1es'],
+	                   ['(bu)s$', '\1ses'],
+	                   ['(buffal|tomat)o$', '\1oes'],
+  	                   ['([ti])um$', '\1a'],
+	                   ['sis$', 'ses'],
+	                   ['(?:([^f])fe|([lr])f)$', '\1\2ves'],
+	                   ['(hive)$', '\1s'],
+	                   ['([^aeiouy]|qu)y$', '\1ies'],
+	                   ['(x|ch|ss|sh)$', '\1es'],
+	                   ['(matr|vert|ind)(?:ix|ex)$', '\1ices'],
+	                   ['([m|l])ouse$', '\1ice'],
+	                   ['^(ox)$', '\1en'],
+	                   ['(quiz)$', '\1zes'] ];
 				 
         result.addAll( getIrregularInflections() );
         return result;
@@ -155,36 +166,37 @@ component
     private Array function getSingularInflections()
     {
         var result = [ ['s$', ''],
-			         ['(n)ews$', '$1ews'],
-	                 ['([ti])a$', '$1um'],
-	                 ['((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$', 
-	                    '$1$2sis'],
-	                 ['(^analy)ses$', '$1sis'],
-	                 ['([^f])ves$', '$1fe'],
-	                 ['(hive)s$', '$1'],
-	                 ['(tive)s$', '$1'],
-	                 ['([lr])ves$', '$1f'],
-	                 ['([^aeiouy]|qu)ies$', '$1y'],
-	                 ['(s)eries$', '$1eries'],
-	                 ['(m)ovies$', '$1ovie'],
-	                 ['(x|ch|ss|sh)es$', '$1'],
-	                 ['([m|l])ice$', '$1ouse'],
-	                 ['(bus)es$', '$1'],
-	                 ['(o)es$', '$1'],
-	                 ['(shoe)s$', '$1'],
-	                 ['(cris|ax|test)es$', '$1is'],
-	                 ['(octop|vir)i$', '$1us'],
-	                 ['(alias|status)es$', '$1'],
-	                 ['^(ox)en', '$1'],
-	                 ['(vert|ind)ices$', '$1ex'],
-	                 ['(matr)ices$', '$1ix'],
-	                 ['(quiz)zes$', '$1'],
-	                 ['(database)s$', '$1'] ];
+   			           ['(n)ews$', '\1ews'],
+	                   ['([ti])a$', '\1um'],
+	                   ['((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$', 
+	                    '\1\2sis'],
+	                   ['(^analy)ses$', '\1sis'],
+	                   ['([^f])ves$', '\1fe'],
+	                   ['(hive)s$', '\1'],
+	                   ['(tive)s$', '\1'],
+	                   ['([lr])ves$', '\1f'],
+	                   ['([^aeiouy]|qu)ies$', '\1y'],
+	                   ['(s)eries$', '\1eries'],
+  	                   ['(m)ovies$', '\1ovie'],
+	                   ['(x|ch|ss|sh)es$', '\1'],
+	                   ['([m|l])ice$', '\1ouse'],
+	                   ['(bus)es$', '\1'],
+	                   ['(o)es$', '\1'],
+	                   ['(shoe)s$', '\1'],
+	                   ['(cris|ax|test)es$', '\1is'],
+	                   ['(octop|vir)i$', '\1us'],
+	                   ['(alias|status)es$', '\1'],
+	                   ['^(ox)en', '\1'],
+	                   ['(vert|ind)ices$', '\1ex'],
+	                   ['(matr)ices$', '\1ix'],
+	                   ['(quiz)zes$', '\1'],
+	                   ['(database)s$', '\1'] ];
 		var inflections = getIrregularInflections();
 		
-        for (i=1;i LTE ArrayLen(inflections);i=i+1) 
+		var length = ArrayLen(inflections);
+        for (i=1;i LTE length;i=i+1) 
         {
-            ArrayAppend( result, ArraySwap( inflections[i], 1, 2) );
+            ArrayAppend( result, [ inflections[i][2], inflections[i][1] ] );
         }			 
 		return result;
     }
@@ -210,21 +222,21 @@ component
      */
     private string function inflectPlural(String value)
     {
-	   var inflections = APPLICATION.pluralInflections;
-       var result = name;
-       
-	   for (i=1;i LTE ArrayLen(inflections);i=i+1) 
-       {
-            value = REReplaceNoCase(value, inflections[i][1], 
+        var inflections = APPLICATION.pluralInflections;
+        var result = name;
+        var length = ArrayLen(inflections);
+        for (i=1;i LTE length;i=i+1) 
+        {
+            result = REReplaceNoCase(value, inflections[i][1], 
                 inflections[i][2], 'all');
 				
 		    if (NOT value eq result)
 			{
                 break;
 			}
-       }
+        }
        
-       return result;
+        return result;
     }
     
     /**
@@ -234,12 +246,11 @@ component
     {
        var inflections = APPLICATION.singularInflections;
        var result = value;
-       var replace = 1;
-       var replaceWith = 2;
-       
-       for (i=1;i LTE ArrayLen(inflections);i=i+1) 
+       var length = ArrayLen(inflections);
+	   
+	   for (i=1;i LTE length;i=i+1) 
        {
-            value = REReplaceNoCase(value, inflections[i][1], 
+            result = REReplaceNoCase(value, inflections[i][1], 
                 inflections[i][2], 'all');
 				
 			if (NOT value eq result)
@@ -259,8 +270,9 @@ component
 	   var inflections = APPLICATION.uncountableInflections;
 	   var result = value;
 	   var isUncountable = false;
-	   
-	   for (i=1;i LTE ArrayLen(inflections);i=i+1) 
+	   var length = ArrayLen(inflections);
+        
+	   for (i=1;i LTE length;i=i+1) 
 	   {
 		    result = REReplaceNoCase(result, inflections[i], "", 'all');
 			
