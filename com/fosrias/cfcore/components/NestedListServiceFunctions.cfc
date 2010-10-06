@@ -174,6 +174,13 @@ component hint="Functions for managing nested lists."
 				
 	                //Moving as another child
 					reference = ARGUMENTS.value.getlft();
+					
+					//If moving down, adjust the reference by the range of 
+					//item being removed above it
+					if ( lft < value.getlft() )
+					{
+					   reference -= range + 1;
+					}
 	            } 
 				
 			    //Create the gap
