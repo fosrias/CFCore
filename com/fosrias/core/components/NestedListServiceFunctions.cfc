@@ -1,4 +1,11 @@
-﻿/*
+﻿////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (c) 2010    Mark W. Foster    www.fosrias.com
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+/*
  * The following methods are used to insert, delete and move AORMComponents that
  * have a lft and rgt column for managing nested lists. The assumption is that
  * the updated lft and rght columns have been set on the client correctly,
@@ -6,20 +13,33 @@
  */
 component hint="Functions for managing nested lists."
 {
-    public any function nestedInsert(any value)
+    public any function nestedInsert(required any value)
 	{  
 		//Get the parent right value
 		var hqlString = "SELECT lft, rgt FROM #this.getModel()# " &
 		   "WHERE id=#ARGUMENTS.value.getparentId()#";
-		var result = ORMExecuteQuery(hqlString)[1];
-		var parentLft = result[1];
-		var parentRgt = result[2];
-		var range = parentRgt - parentLft;
+            
+		var result = ORMExecuteQuery(hqlString);
+		
+		if ( ArrayLen(result) > 0 )
+		{
+            var parentLft = result[1][1];
+            var parentRgt = result[1][2];
+            var range = parentRgt - parentLft;
+ 		} else {
+		
+            //Creating new site 
+			ARGUMENTS.value.setlft(1);
+			ARGUMENTS.value.setrgt(2);
+            EntitySave(ARGUMENTS.value, true);
+			return;
+		}
 
 	    var hqlString = "";
 		
+		//Lock the table
 		var query = new Query();
-        query.setdataSource("ContentManager"); 
+        query.setdataSource(APPLICATION['datasource'] ); 
         query.setsql("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"); 
         query.execute();
         query.setsql("BEGIN TRANSACTION"); 
@@ -64,7 +84,7 @@ component hint="Functions for managing nested lists."
         }
 	}
 	
-	public any function nestedRemove(any value, boolean delete = true)
+	public any function nestedRemove(required any value, boolean delete = true)
 	{
         //Load the current values
 	    var lft = ARGUMENTS.value.getlft();
@@ -76,7 +96,7 @@ component hint="Functions for managing nested lists."
 			
         //Lock the tables
 		var query = new Query();
-		query.setdataSource("ContentManager"); 
+		query.setdataSource(APPLICATION['datasource'] ); 
 		query.setsql("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"); 
 		query.execute();
 		query.setsql("BEGIN TRANSACTION"); 
@@ -91,7 +111,7 @@ component hint="Functions for managing nested lists."
 			
 			     //Clear the nesting. We save the record, but remove it from 
 				//the tree.
-		        hqlString = "UPDATE #this.getmodel()# SET lft = -1, rgt = -1 " &
+		        hqlString = "UPDATE #this.getmodel()# SET lft = 0, rgt = 0 " &
 				     "WHERE lft BETWEEN  #lft# AND #rgt#";
 		        ORMExecuteQuery(hqlString);
 		    }
@@ -115,7 +135,7 @@ component hint="Functions for managing nested lists."
         }
 	}
 	
-	public any function nestedMove(any value)
+	public any function nestedMove(required any value)
 	{
 		//Load the current persistent location of the record
 		var hqlString = "SELECT lft, rgt FROM #this.getModel()# " &
@@ -129,7 +149,7 @@ component hint="Functions for managing nested lists."
         {
 		    //Lock the tables
 			var query = new Query();
-			query.setdataSource("ContentManager"); 
+			query.setdataSource(APPLICATION['datasource'] ); 
             query.setsql("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"); 
             query.execute();
 			query.setsql("BEGIN TRANSACTION"); 

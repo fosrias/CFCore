@@ -26,7 +26,7 @@
  * 
  * @see AService, AORMApplication.cfc, AORMComponent.cfc
  */
-component extends="CFCore.com.fosrias.cfcore.interfaces.AService"
+component extends="CFCore.com.fosrias.core.interfaces.AService"
 {
     //--------------------------------------------------------------------------
     //

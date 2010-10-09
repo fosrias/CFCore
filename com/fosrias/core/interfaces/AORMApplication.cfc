@@ -18,8 +18,8 @@
  */
 component
 {
-    include "/CFCore/com/fosrias/cfcore/components/InflectionFunctions.cfc";
-	include "/CFCore/com/fosrias/cfcore/components/ORMFunctions.cfc";
+    include "/CFCore/com/fosrias/core/components/InflectionFunctions.cfc";
+	include "/CFCore/com/fosrias/core/components/ORMFunctions.cfc";
 	
     this.ormenabled = true;
 	this.ormsettings.logSQL = true;

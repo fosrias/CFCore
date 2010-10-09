@@ -9,7 +9,7 @@
  * Utility application service that is pasted into a cf project and available
  * for remote testing of application access.
  */
-component  extends="CFCore.com.fosrias.cfcore.interfaces.AService" 
+component  extends="CFCore.com.fosrias.core.interfaces.AService" 
            hint="Remote service with functions to check on application."
 { 
 	//--------------------------------------------------------------------------

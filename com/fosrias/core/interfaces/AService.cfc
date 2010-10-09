@@ -11,9 +11,9 @@
  */
 component hint="Base class for services."
 {
-    import CFCore.com.fosrias.cfcore.components.CallResult;
+    import CFCore.com.fosrias.core.components.CallResult;
     
-	include "/CFCore/com/fosrias/cfcore/components/InflectionFunctions.cfc";
+	include "/CFCore/com/fosrias/core/components/InflectionFunctions.cfc";
     
     //--------------------------------------------------------------------------
     //

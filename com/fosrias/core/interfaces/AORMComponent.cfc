@@ -12,7 +12,7 @@
  */
 component
 {
-    include "/CFCore/com/fosrias/cfcore/components/InflectionFunctions.cfc";
+    include "/CFCore/com/fosrias/core/components/InflectionFunctions.cfc";
 	
     //--------------------------------------------------------------------------
     //
