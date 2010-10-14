@@ -3,9 +3,6 @@
 //  Copyright (c) 2010    Mark W. Foster    www.fosrias.com
 //  All Rights Reserved.
 //
-//  NOTICE: Mark W. Foster permits you to use, modify, and distribute this file
-//  in accordance with the terms of the MIT license agreement accompanying it.
-//
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
