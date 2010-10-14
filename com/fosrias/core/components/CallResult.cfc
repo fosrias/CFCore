@@ -24,6 +24,7 @@ component  hint="Payload object for returning data calls with messages"
     //----------------------------------
     
     property name="data" 
+	         getter="true" 
 			 type="any" 
 			 hint="The data payload.";
 
@@ -32,7 +33,8 @@ component  hint="Payload object for returning data calls with messages"
     //----------------------------------
     
     property name="message" 
-	         type="string" 
+	         getter="true" 
+             type="string" 
 	         hint="The message";
 	
 	//--------------------------------------------------------------------------
