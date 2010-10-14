@@ -27,10 +27,8 @@ component hint="Functions for managing nested lists."
             var parentRgt = result[1][2];
             var range = parentRgt - parentLft;
  		} else {
-		
-            //Creating new site 
-			ARGUMENTS.value.setlft(1);
-			ARGUMENTS.value.setrgt(2);
+		    
+			//Creating a top-level item. 
             EntitySave(ARGUMENTS.value, true);
 			return;
 		}
@@ -111,8 +109,8 @@ component hint="Functions for managing nested lists."
 			
 			     //Clear the nesting. We save the record, but remove it from 
 				//the tree.
-		        hqlString = "UPDATE #this.getmodel()# SET lft = 0, rgt = 0 " &
-				     "WHERE lft BETWEEN  #lft# AND #rgt#";
+		        hqlString = "UPDATE #this.getmodel()# SET lft = 0, rgt = 0, " &
+				     "is_deleted = true WHERE lft BETWEEN  #lft# AND #rgt#";
 		        ORMExecuteQuery(hqlString);
 		    }
 		   
