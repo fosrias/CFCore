@@ -23,15 +23,14 @@ component extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
 	property name="siteItemId" column="site_item_id" type="numeric" 
 	         ormtype="long" default="0";
     property name="text" column="text" type="string" ormtype="string"; 
-	property name="isHTMLFormat" column="is_html_format" type="boolean" default="false";
-    property name="link" column="link" type="string" ormtype="string"; 
+	property name="link" column="link" type="string" ormtype="string"; 
 	property name="fileName" column="file_name" type="string" ormtype="string"; 
 	property name="fileLocation" column="file_location" type="string" ormtype="string"; 
     property name="fileType" column="file_type" type="string" ormtype="string"; 
 	property name="fileSize" column="file_size" type="numeric" ormtype="int"; 
 	property name="fileContent" column="file_content" type="binary"; //ormtype="java.lang.Object"; 
 	property name="revision" type="numeric" ormtype="integer" default="1";
-    property name="createdAt" column="created_at" type="date" ormtype="timestamp"; 
+    property name="createdAt" column="created_at" type="date"; 
 	property name="updatedAt" column="updated_at" type="date" ormtype="timestamp"; 
 	property name="item"  persistent="false" type="any";
 	
