@@ -150,7 +150,7 @@ component
      */
     public string function findModel()
     {
-       return APPLICATION.findModelName( GetMetadata(this).name );
+       return APPLICATION.findModelName(GetMetadata(this).name);
     }
     
     /**
@@ -226,14 +226,16 @@ component
     */
     remote void function preInsert(any entity) 
 	{
+	    var date = now();
+		
 		if (structKeyExists(this, "setcreatedAt"))
 		{
-            this.setcreatedAt( now() );   
+            this.setcreatedAt(date);   
         }
 
         if ( structKeyExists(this, "setupdatedAt") )
 		{
-            this.setupdatedAt( now() );
+            this.setupdatedAt(date);
         }
     }
 
@@ -251,17 +253,18 @@ component
      */
     remote void function preUpdate(any entity , struct oldData ) 
 	{
-       
+       var date = now();
+	   
 	   //Only set for new records
        if (structKeyExists(this, "setcreatedAt") AND this.getcreatedAt() eq "")
        {
-           this.setcreatedAt( now() );
+           this.setcreatedAt(date);
        } 
 	   
 	   //Always set this
 	   if ( structKeyExists(this, "setupdatedAt") )
 	   {
-            this.setupdatedAt( now() );
+            this.setupdatedAt(date);
        } 
     }
 	
