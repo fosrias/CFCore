@@ -20,6 +20,7 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
     property name="parentId" column="parent_id" ormtype="integer" type="numeric" default="0";
     property name="lft" ormtype="integer" type="numeric";
     property name="rgt" ormtype="integer" type="numeric";
+    property name="relatedItemId" column="related_item_id" ormtype="integer" type="numeric" default="0";
     property name="type" type="string" default="TEXT";
     property name="urlFragment" column="url_fragment" type="string" searchable="true";
     property name="browserTitle" column="browser_title" type="string" searchable="true";
@@ -33,6 +34,7 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
     property name="isDeleted" column="is_deleted" type="boolean" default="false";
     property name="isLocked" column="is_locked" type="boolean" default="false";
     property name="isSystem" column="is_system" type="boolean" default="false";
+    property name="isListDetail" column="is_list_detail" type="boolean" default="false";
     property name="createdAt" column="created_at" ormtype="timestamp" type="date" ;
     property name="updatedAt" column="updated_at" ormtype="timestamp" type="date";
 	property name="content" persistent="false" type="any";
@@ -68,9 +70,46 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
 	   return VARIABLE['type'] eq 'SITE';
 	}
 	
-	public string function defineWhereClause()
+	//--------------------------------------------------------------------------
+    //
+    //  Methods
+    //
+    //--------------------------------------------------------------------------
+    
+    public string function defineWhereClause()
 	{
 	   //We only return values in the nesting.
 	   return super.defineWhereClause() & " AND lft > 0";
+	}
+	
+	public void function processListDetail()
+    {
+        var parent = entityLoad("SiteItem", this.getparentId(), true );
+		
+		//No parent when creating system site items
+		if ( NOT structKeyExists(LOCAL, "parent") )
+	       return;
+		   
+		switch ( parent.gettype() )
+		{
+            case "FAQ":
+			case "LIST":
+			case "MARQUEE":
+			case "POST":
+			case "SEARCH":
+			{
+			     
+        
+                //We only care if the parent is a list
+				if ( this.gettype() eq "SITE_LINK" OR this.getisMenuItem() )
+				{
+				   //We keep links and menu items
+				   this.setisListDetail(false);
+				   
+				} else  {
+                    this.setisListDetail(true);
+				}
+			}
+		}
 	}
 }
