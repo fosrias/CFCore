@@ -123,7 +123,8 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
     /**
      * @hint Performs search against the underlying table.
      */
-    remote any function search(string query) 
+    remote any function search(string query,
+	                           boolean queryIsWhere = false) 
     {
 		var hqlString = "FROM #this.getmodel()#";
 		var whereClause = "";
@@ -131,7 +132,8 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
 		
 		if (Len(ARGUMENTS.query) gt 0)
 		{
-		    whereClause = buildWhereClause(ARGUMENTS.query);
+		    whereClause = buildWhereClause(ARGUMENTS.query, 
+			    ARGUMENTS.queryIsWhere);
 		}
 		if (Len(whereClause) gt 0)
 		{
@@ -148,14 +150,16 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
     /**
      * @hint Determines total number of results of search for paging purposes.
      */
-    remote any  function searchCount(string query) 
+    remote any  function searchCount(string query,
+	                                 boolean queryIsWhere = false) 
     {
 	    var hqlString = "SELECT COUNT(*) FROM #this.getmodel()#";
         var whereClause = "";
         
         if (Len(ARGUMENTS.query) gt 0)
         {
-            whereClause = buildWhereClause(ARGUMENTS.query);
+            whereClause = buildWhereClause(ARGUMENTS.query, 
+                ARGUMENTS.queryIsWhere);
         }
         if (Len(whereClause) gt 0)
         {
@@ -169,7 +173,8 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
      */
     remote any function searchPaged(string query, 
                                     numeric offset ="0", 
-                                    numeric maxResults ="0", 
+                                    numeric maxResults ="0",
+                                    boolean queryIsWhere = false,
                                     string orderBy ="Null")
     {	
 	    //Note: Query calls are against the model, not the table name
@@ -188,7 +193,8 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
         }
         if (Len(ARGUMENTS.query) gt 0)
 		{
-            whereClause = buildWhereClause(ARGUMENTS.query);
+            whereClause = buildWhereClause(ARGUMENTS.query, 
+                ARGUMENTS.queryIsWhere);
         }
         if (Len(whereClause) gt 0)
 		{
@@ -234,8 +240,18 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
     /**
      * @hint Adds a where clause to a query.
      */
-    private string function buildWhereClause(String query)
+    private string function buildWhereClause(String query,
+                                             boolean queryIsWhere)
 	{
-	    return APPLICATION.buildWhereClause(this.getmodel(), arguments.query);
+	    if (queryIsWhere)
+		{
+            return query;
+			
+		} else {
+		
+		    return APPLICATION.buildWhereClause(this.getmodel(), 
+			    arguments.query);
+		}
+	    
 	}
 }
