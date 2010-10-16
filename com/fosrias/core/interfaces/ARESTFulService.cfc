@@ -174,8 +174,8 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
     remote any function searchPaged(string query, 
                                     numeric offset ="0", 
                                     numeric maxResults ="0",
-                                    boolean queryIsWhere = false,
-                                    string orderBy ="Null")
+									string orderBy ="Null",
+                                    boolean queryIsWhere = false)
     {	
 	    //Note: Query calls are against the model, not the table name
 		var hqlString = "FROM #this.getmodel()#";
