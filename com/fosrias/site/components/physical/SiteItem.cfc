@@ -35,6 +35,7 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
     property name="isLocked" column="is_locked" type="boolean" default="false";
     property name="isSystem" column="is_system" type="boolean" default="false";
     property name="isListDetail" column="is_list_detail" type="boolean" default="false";
+    property name="isSearchable" column="is_searchable" type="boolean" default="true";
     property name="createdAt" column="created_at" ormtype="timestamp" type="date" ;
     property name="updatedAt" column="updated_at" ormtype="timestamp" type="date";
 	property name="content" persistent="false" type="any";
