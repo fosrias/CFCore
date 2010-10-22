@@ -95,12 +95,9 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
 		{
             case "FAQ":
 			case "LIST":
-			case "MARQUEE":
 			case "POST":
 			case "SEARCH":
 			{
-			     
-        
                 //We only care if the parent is a list
 				if ( this.gettype() eq "SITE_LINK" OR this.getisMenuItem() )
 				{
