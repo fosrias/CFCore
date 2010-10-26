@@ -15,6 +15,7 @@ component extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
     property name="id" ormtype="integer" type="numeric" fieldtype="id" 
              generator="native";
     property name="contactEmail" column="contact_email"  type="string";
+    property name="webmasterEmail" column="webmaster_email"  type="string";
     property name="url" type="string";
     property name="title" type="string" searchable="true";
     property name="description" type="string" searchable="true";
