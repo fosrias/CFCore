@@ -6,14 +6,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 component extends="CFCore.com.fosrias.core.interfaces.AORMComponent" 
-		  hint="The model for sites"
+          hint="The model for sites"
           persistent="true"
-		  alias="com.fosrias.site.components.physical.Site"
-		  style="rpc"
-		  table="sites"
+          alias="com.fosrias.site.components.physical.Site"
+          style="rpc"
+          table="sites"
 {
     property name="id" ormtype="integer" type="numeric" fieldtype="id" 
-	         generator="native";
+             generator="native";
+    property name="contactEmail" column="contact_email"  type="string";
     property name="url" type="string";
     property name="title" type="string" searchable="true";
     property name="description" type="string" searchable="true";
