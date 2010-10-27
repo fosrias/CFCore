@@ -37,7 +37,7 @@ component hint="Functions for managing nested lists."
 		
 		//Lock the table
 		var query = new Query();
-        query.setdataSource(APPLICATION['datasource'] ); 
+        query.setdataSource( APPLICATION['datasource'] ); 
         query.setsql("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"); 
         query.execute();
         query.setsql("BEGIN TRANSACTION"); 
