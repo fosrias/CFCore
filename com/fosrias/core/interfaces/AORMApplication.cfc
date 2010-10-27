@@ -60,4 +60,14 @@ component
 	   clearInflection();
 	   clearORMStructures();
 	}
+	
+	/*
+     * @hint Error handler for application. Primarily used to rethrow an
+	 * error when login validation fails.
+     */
+    public void function onError(any exception, string eventName)
+	{
+        if (eventName eq "onRequestStart")
+            throw(message="#exception.rootcause.message#");
+	}
 }
