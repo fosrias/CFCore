@@ -67,7 +67,14 @@ component
      */
     public void function onError(any exception, string eventName)
 	{
-        if (eventName eq "onRequestStart")
-            throw(message="#exception.rootcause.message#");
+        if (eventName eq "onRequestStart" AND FindNoCase('Your username and/or password is invalid', exception.rootcause.message)  )
+		{
+		  throw(message="#exception.rootcause.message#");
+		  
+		} else {
+		
+            throw(object=exception);
+		}
+            
 	}
 }
