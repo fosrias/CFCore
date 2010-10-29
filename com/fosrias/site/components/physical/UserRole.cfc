@@ -14,7 +14,10 @@ component extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
              FKColumn="authorizable_id" inversejoincolumn="user_id" cascade="all" 
              orderby="user_id" lazy="true" remotingfetch="false";
 	
-	public function init(string name = "", string description = "")	
+	/**
+     * Constructor
+     */
+    remote function init(string name = "", string description = "")	
     {
 	    super.init();
 		
@@ -27,5 +30,6 @@ component extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
         {
             this.setDescription(ARGUMENTS.description);
         }
+		return this;
 	}
 } 
