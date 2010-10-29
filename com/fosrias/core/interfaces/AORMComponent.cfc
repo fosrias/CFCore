@@ -62,7 +62,8 @@ component
 		//The following effectively creates class variables for the 
 		//primary key and sort order so they are only calculated once for
 		//each component after the server is started.
-		if ( NOT APPLICATION.hasORMStructures(metadata.name) )
+		if ( isDefined("APPLICATION") AND 
+		     NOT APPLICATION.hasORMStructures(metadata.name) )
 		{   
 		    var modelName = ARGUMENTS.model;
 			
