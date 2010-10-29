@@ -1,3 +1,4 @@
+<!---
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (c) 2010   Mark W. Foster    www.fosrias.com
@@ -20,14 +21,19 @@
  * service is intended for use with applications that extend the 
  * compoent AORMApplication.cfc and ORM components that extend the 
  * AORMComponent.cfc.
+ *
+ * Role based security is implemented on create, destroy and update as a 
+ * default. Thus, those methods are tag based.
  * 
  * Note: Query statements reference the MyModel name, not the my_models 
  * table name.
  * 
  * @see AService, AORMApplication.cfc, AORMComponent.cfc
  */
-component extends="CFCore.com.fosrias.core.interfaces.AService"
-{
+--->
+<cfcomponent extends="CFCore.com.fosrias.core.interfaces.AService">
+<cfscript>
+
     //--------------------------------------------------------------------------
     //
     //  Abstract Constructor
@@ -52,7 +58,7 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
 	
 	//--------------------------------------------------------------------------
     //
-    //  Remote methods
+    //  Remote script methods
     //
     //--------------------------------------------------------------------------
     
@@ -65,25 +71,6 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
 		    ormExecuteQuery("SELECT COUNT(*) FROM #this.getmodel()#")[1] );
     }
 
-    /**
-     * @hint Updates one record from the underlying table.
-     */
-    remote any function create(required any value) 
-    {
-		//Force an insert. Causes preInsert callback to fire.
-		EntitySave(ARGUMENTS.value, true);
-		
-        return callResult(ARGUMENTS.value);
-    }
-    
-    /**
-     * @hint Deletes one record from the underlying table.
-     */
-    remote void function destroy(required any value) 
-    {
-        EntityDelete(ARGUMENTS.value);
-    }
-    
     /**
 	 * @hint Returns all of the records in the underlying table.
 	 */
@@ -220,16 +207,6 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
         //REFACTOR for composite primary keys
 		return callResult(  EntityLoad(this.getmodel(), ARGUMENTS.id, true) );
     }
-
-    /**
-     * @hint Updates one record from the underlying table.
-     */
-    remote any function update(required any value)
-    {
-	    EntitySave(ARGUMENTS.value);
-		
-		return callResult(ARGUMENTS.value);
-    }
 	
 	//--------------------------------------------------------------------------
     //
@@ -254,4 +231,31 @@ component extends="CFCore.com.fosrias.core.interfaces.AService"
 		}
 	    
 	}
-}
+</cfscript>
+<cffunction name="create" access="remote" roles="super,site,content" 
+            hint="Creates one record in the underlying table">
+	<cfargument name="value" required="true" type="any">
+		<cfscript>
+			//Force an insert. Causes preInsert callback to fire.
+			EntitySave(ARGUMENTS.value, true);
+			
+			return callResult(ARGUMENTS.value);
+		</cfscript>
+</cffunction>
+<cffunction name="destroy" access="remote" roles="super,site" 
+            hint="Deletes one record from the underlying table">
+    <cfargument name="value" required="true" type="any">
+        <cfscript>
+            EntityDelete(ARGUMENTS.value);
+        </cfscript>
+</cffunction>
+<cffunction name="update" access="remote" roles="super,site,content" 
+            hint="Updates one record from the underlying table">
+    <cfargument name="value" required="true" type="any">
+        <cfscript>
+            EntitySave(ARGUMENTS.value);
+            
+            return callResult(ARGUMENTS.value);
+        </cfscript>
+</cffunction>
+</cfcomponent>
