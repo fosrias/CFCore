@@ -11,9 +11,7 @@
  */
 component hint="Base class for services."
 {
-    import CFCore.com.fosrias.core.components.CallResult;
-    
-	include "/CFCore/com/fosrias/core/components/InflectionFunctions.cfc";
+    include "/CFCore/com/fosrias/core/components/InflectionFunctions.cfc";
     
     //--------------------------------------------------------------------------
     //
@@ -48,10 +46,12 @@ component hint="Base class for services."
     /**
      * @hint Utility method to return remote calls in wrapper that can
 	 * include a message.
+	 *
      */
-    public CallResult function callResult(any data, String message = "")
+    public CFCore.com.fosrias.core.components.CallResult function callResult(
+	    any data, String message = "")
     {
-       return new CallResult(data, message);
+       return new CFCore.com.fosrias.core.components.CallResult(data, message);
     }
 	
 	/*
