@@ -1,5 +1,5 @@
 component extends="CFCore.com.fosrias.core.interfaces.AORMComponent" 
-          hint="Users"
+          hint="User roles"
           persistent="true"
           alias="com.fosrias.site.components.physical.UserRole"
           style="rpc"
@@ -17,19 +17,8 @@ component extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
 	/**
      * Constructor
      */
-    remote function init(string name = "", string description = "")	
+    remote function init()
     {
 	    super.init();
-		
-		if (ARGUMENTS.name NEQ "")
-        {
-            this.setname(ARGUMENTS.name);
-        }
-        
-        if (ARGUMENTS.description NEQ "")
-        {
-            this.setDescription(ARGUMENTS.description);
-        }
-		return this;
 	}
 } 
