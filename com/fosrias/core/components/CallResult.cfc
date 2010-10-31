@@ -32,9 +32,10 @@ component  hint="Payload object for returning data calls with messages"
     //  message
     //----------------------------------
     
-    property name="message" 
-	         getter="true" 
-             type="string" 
+    property name="message"
+	         getter="true"
+			 setter="true" 
+	         type="string" 
 	         hint="The message";
 	
 	//--------------------------------------------------------------------------
