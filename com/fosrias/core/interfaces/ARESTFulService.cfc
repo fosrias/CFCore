@@ -232,7 +232,7 @@
 	    
 	}
 </cfscript>
-<cffunction name="create" access="remote" roles="super,site,content" 
+<cffunction name="create" access="remote" roles="super,admin,content" 
             hint="Creates one record in the underlying table">
 	<cfargument name="value" required="true" type="any">
 		<cfscript>
@@ -242,14 +242,14 @@
 			return callResult(ARGUMENTS.value);
 		</cfscript>
 </cffunction>
-<cffunction name="destroy" access="remote" roles="super,site" 
+<cffunction name="destroy" access="remote" roles="super,admin" 
             hint="Deletes one record from the underlying table">
     <cfargument name="value" required="true" type="any">
         <cfscript>
             EntityDelete(ARGUMENTS.value);
         </cfscript>
 </cffunction>
-<cffunction name="update" access="remote" roles="super,site,content" 
+<cffunction name="update" access="remote" roles="super,admin,content" 
             hint="Updates one record from the underlying table">
     <cfargument name="value" required="true" type="any">
         <cfscript>
