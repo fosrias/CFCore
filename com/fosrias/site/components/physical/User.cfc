@@ -1,7 +1,7 @@
 component extends="CFCore.com.fosrias.core.interfaces.AORMComponent" 
           hint="Users"
           persistent="true"
-          alias="com.fosrias.site.components.physical.User"
+          alias="CFCore.com.fosrias.site.components.physical.User"
           style="rpc"
           table="users"
 {

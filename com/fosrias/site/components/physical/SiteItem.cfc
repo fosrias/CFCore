@@ -10,7 +10,7 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
 		   persistent="true"
 		   optimisticlock="all"
 		   dynamicupdate="true"
-           alias="com.fosrias.site.components.physical.SiteItem"
+           alias="CFCore.com.fosrias.site.components.physical.SiteItem"
            style="rpc"
            table="site_items"
 {

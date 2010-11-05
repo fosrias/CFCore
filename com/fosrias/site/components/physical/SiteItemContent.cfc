@@ -14,7 +14,7 @@
 component extends="CFCore.com.fosrias.core.interfaces.AORMComponent" 
           hint="The model for sites"
           persistent="true"
-          alias="com.fosrias.site.components.physical.SiteItemContent"
+          alias="CFCore.com.fosrias.site.components.physical.SiteItemContent"
           style="rpc"
           table="site_item_contents"
 {

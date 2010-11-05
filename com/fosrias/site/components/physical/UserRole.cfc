@@ -1,7 +1,7 @@
 component extends="CFCore.com.fosrias.core.interfaces.AORMComponent" 
           hint="User roles"
           persistent="true"
-          alias="com.fosrias.site.components.physical.UserRole"
+          alias="CFCore.com.fosrias.site.components.physical.UserRole"
           style="rpc"
           table="user_roles"
 {
