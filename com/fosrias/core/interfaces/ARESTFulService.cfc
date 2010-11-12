@@ -25,8 +25,8 @@
  * Role based security is implemented on create, destroy and update as a 
  * default. Thus, those methods are tag based.
  * 
- * Note: Query statements reference the MyModel name, not the my_models 
- * table name.
+ * Note: ORM queries reference the MyModel name, not the my_models 
+ * table name. The opposite is true of Query objects.
  * 
  * @see AService, AORMApplication.cfc, AORMComponent.cfc
  */
@@ -47,7 +47,8 @@
 	 * instantiated. 
 	 *
 	 * Concrete implementations of this component must call super.init() as the 
-	 * first line in their init method with the table name as a parameter.
+	 * first line in their init method with the model name as an optional
+	 * parameter to override the default naming scheme.
 	 *
 	 * @hint A initialization routine, runs when object is created.
 	 */
@@ -190,7 +191,10 @@
 	    if (ARGUMENTS.orderBy eq "Null")
         {
             orderByClause = this.getsortOrder();
-        }	
+        } else {
+		
+		    orderByClause = ARGUMENTS.orderBy;
+		}
         if (Len(orderByClause) gt 0)
         {
             hqlString = hqlString & " ORDER BY #orderByClause#";   
