@@ -102,6 +102,9 @@
 		if (orderByClause eq "Null")
         {
             orderByClause = this.getsortOrder();
+        } else {
+        
+            orderByClause = ARGUMENTS.orderBy;
         }
         
         return callResult( entityLoad(this.getmodel(), {}, orderByClause, 
