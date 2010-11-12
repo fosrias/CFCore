@@ -27,6 +27,8 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
     property name="name" type="string" searchable="true";
     property name="description" type="string" searchable="true";
     property name="tags" type="string" searchable="true";
+    property name="xmlTags" column="xml_tags" type="string" searchable="true";
+    property name="image" column="image" type="binary"; //ormtype="java.lang.Object"; 
     property name="isActive" column="is_active" type="boolean" default="false";
     property name="isLink" column="is_link" type="boolean" default="false";
     property name="isMenuItem" column="is_menu_item" type="boolean" default="false";
@@ -93,10 +95,11 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
 		   
 		switch ( parent.gettype() )
 		{
-            case "FAQ":
+            case "FAQ_LIST":
 			case "LIST":
-			case "POST":
-			case "SEARCH":
+			case "LIST_BY_DATE":
+            case "LIST_BY_NAME":
+            case "POST_LIST":
 			{
                 //We only care if the parent is a list
 				if ( this.gettype() eq "SITE_LINK" OR this.getisMenuItem() )
@@ -105,7 +108,14 @@ component  extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
 				   this.setisListDetail(false);
 				   
 				} else  {
+				
                     this.setisListDetail(true);
+					
+					if (this.gettype() EQ "LIST_SPACER")
+					{
+					   this.setisSearchable(false);
+					}
+					
 				}
 			}
 		}
