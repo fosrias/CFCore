@@ -186,7 +186,7 @@
 		{
             whereClause = buildWhereClause(ARGUMENTS.query, 
                 ARGUMENTS.queryIsWhere);
-        }
+        } 
         if (Len(whereClause) gt 0)
 		{
             hqlString = hqlString & " WHERE " & whereClause;
