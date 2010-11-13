@@ -310,7 +310,13 @@ component
 	    }
 	   
 	    whereClause = Replace(whereClause, "|", " OR ", "all");
-        
+		
+		//Enclose in parenthesis so AND statements can restrict the value
+		if (structKeyExists(LOCAL, "whereClause") AND Len(whereClause) GT 0)
+		{
+		    whereClause = "(" & whereClause & ")";
+		}
+		
 		return whereClause;
 	}
 }
