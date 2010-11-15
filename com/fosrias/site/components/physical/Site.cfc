@@ -20,6 +20,8 @@ component extends="CFCore.com.fosrias.core.interfaces.AORMComponent"
     property name="title" type="string" searchable="true";
     property name="description" type="string" searchable="true";
     property name="tags" type="string" searchable="true";
+    property name="sessionEditor" column="session_editor" type="string";
+    property name="sessionAt" column="session_at" ormtype="timestamp" type="date";
     property name="createdAt" column="created_at" ormtype="timestamp" type="date";
     property name="updatedAt" column="updated_at" ormtype="timestamp" type="date";
 
